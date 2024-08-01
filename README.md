@@ -1,38 +1,18 @@
-# create-svelte
+# lemonsqueezy-sveltekit-crash
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+This repo demonstrates a crash when submitting a form in SvelteKit that happens only when the lemon.js script is present. The lemon.js script is added to `src/app.html`, and `createLemonSqueezy()` is called when the component in `src/routes/+page.svelte` mounts, as instructed by the documentation.
 
-## Creating a project
+To reproduce:
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Clone repo.
+1. `npm i`
+1. `npm run build`
+1. `npm run preview`
+1. Open browser console.
+1. Visit http://localhost:4173/
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+Directly on load, we see a "TypeError: window.createLemonSqueezy is not a function" error message. If we thereafter try to submit the form by clicking the button, SvelteKit crashes with "TypeError: Cannot read properties of undefined (reading '$set')".
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+If we remove the line `(window as any).createLemonSqueezy();` from `onMount`, everything works as expected.
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+The bug seems easier to reproduce in a production build (i.e. `npm run build`), but can also be reproduced in dev mode (`npm run dev`), by reloading the page until we see the error being logged.
